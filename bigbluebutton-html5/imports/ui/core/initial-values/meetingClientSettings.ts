@@ -13,7 +13,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       skipCheck: false,
       skipCheckOnJoin: false,
       enableDynamicAudioDeviceSelection: true,
-      clientTitle: 'BigBlueButton',
+      clientTitle: 'T-Meet',
       bbbServerVersion: 'HTML5_FULL_BBB_VERSION',
       displayBbbServerVersion: true,
       copyright: '©2023 BigBlueButton Inc.',
