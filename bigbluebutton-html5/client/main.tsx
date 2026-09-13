@@ -33,7 +33,7 @@ if (
       : null;
   }
 }
-/* eslint-enable */
+/* eslint-enable oaismaois*/
 
 const Main: React.FC = () => {
   return (
