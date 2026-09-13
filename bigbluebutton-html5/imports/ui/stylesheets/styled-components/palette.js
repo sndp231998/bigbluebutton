@@ -4,7 +4,7 @@ const colorOffWhite = 'var(--color-off-white, #F3F6F9)';
 const colorBlack = 'var(--color-black, #000000)';
 
 const colorGray = 'var(--color-gray, #4E5A66)';
-const colorGrayDark = 'var(--color-gray-dark, #06172A)';
+const colorGrayDark = 'var(--color-gray-dark, #E8F4F8)';
 const colorGrayLight = 'var(--color-gray-light, #8B9AA8)';
 const colorGrayLighter = 'var(--color-gray-lighter, #A7B3BD)';
 const colorGrayLightest = 'var(--color-gray-lightest, #D4D9DF)';
@@ -29,7 +29,7 @@ const colorOffline = `var(--color-offline, ${colorGrayLight})`;
 const colorMuted = 'var(--color-muted, #586571)';
 const colorMutedBackground = 'var(--color-muted-background, #F3F6F9)';
 
-const colorBackground = `var(--color-background, ${colorGrayDark})`;
+const colorBackground = `var(--color-background, #E8F4F8)`;
 const colorOverlay = 'var(--color-overlay, rgba(6, 23, 42, 0.75))';
 
 const userListBg = `var(--user-list-bg, ${colorOffWhite})`;
