@@ -1,0 +1,113 @@
+# T-Meet Deployment Guide
+
+How the T-Meet server (`https://tmeet.tsaedu.com`) is built, and how to update or rebuild it.
+
+Last setup: 2 November 2026.
+
+## What runs where
+
+| Part | Source | Location on server |
+| --- | --- | --- |
+| BigBlueButton 3.0.40 backend (all services) | Official packages via `bbb-install.sh` | system packages |
+| T-Meet HTML5 client (meeting UI) | this repo, branch `production-3.0.40` | `/root/bigbluebutton` → deployed to `/usr/share/bigbluebutton/html5-client/` |
+| T-Meet Greenlight (landing page, rooms, login) | `sndp231998/greenlight`, branch `production` | `/root/greenlight` → Docker image `greenlight-custom:production` |
+| Greenlight runtime (compose, `.env`, database) | created by `bbb-install.sh -g` | `/root/greenlight-v3` |
+| Favicon (browser tab icon) | `bigbluebutton-config/assets/favicon.ico` | `/var/www/bigbluebutton-default/assets/favicon.ico` |
+
+Only the HTML5 client is customized in this repo (title `T-Meet`, `clientTitle`), so the rest of BigBlueButton comes from official packages.
+
+### Branches
+
+- `production`: the original T-Meet changes on top of BBB 3.0.35.
+- `production-3.0.40`: the same T-Meet commits cherry-picked onto upstream tag `v3.0.40`. **This is what the server runs.** The HTML5 client must match the installed BBB version.
+
+## Fresh server setup
+
+Requirements: Ubuntu **22.04**, 4+ CPU, 8+ GB RAM, DNS `A` record for `tmeet.tsaedu.com` pointing to the server, ports TCP 80/443 and UDP 16384-32768 open.
+
+1. Do **not** install `docker.io` from Ubuntu. `bbb-install.sh` installs `docker-ce`, and the two conflict (Docker fails to start).
+2. Install BBB and Greenlight:
+   ```bash
+   hostnamectl set-hostname tmeet.tsaedu.com
+   wget -qO /root/bbb-install.sh https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh
+   nohup bash /root/bbb-install.sh -v jammy-300 -s tmeet.tsaedu.com -e sandipchapagain797@gmail.com -g -w > /root/bbb-install.log 2>&1 < /dev/null &
+   tail -f /root/bbb-install.log
+   ```
+3. Check: `bbb-conf --check` and `bbb-conf --status`.
+4. Clone the repos:
+   ```bash
+   cd /root
+   git clone -b production-3.0.40 https://github.com/sndp231998/bigbluebutton.git
+   git clone -b production https://github.com/sndp231998/greenlight.git
+   ```
+5. Deploy the HTML5 client, favicon and Greenlight (next sections).
+6. Create the admin user (password needs 8+ chars with upper, lower, digit and symbol):
+   ```bash
+   docker exec greenlight-v3 bundle exec rake "admin:create[Name,email@example.com,Strong@Pass1]"
+   ```
+
+## Deploy the HTML5 client (meeting UI)
+
+```bash
+cd /root/bigbluebutton && git pull
+cd bigbluebutton-html5 && ./deploy.sh
+```
+
+`deploy.sh` runs `npm ci`, builds (about 5 minutes), copies `dist/` to `/usr/share/bigbluebutton/html5-client/` and restarts nginx.
+
+## Deploy the favicon
+
+```bash
+cp /root/bigbluebutton/bigbluebutton-config/assets/favicon.ico /var/www/bigbluebutton-default/assets/favicon.ico
+cp /root/greenlight/public/apple-touch-icon.png /var/www/bigbluebutton-default/assets/apple-touch-icon.png
+cp /root/greenlight/public/apple-touch-icon-precomposed.png /var/www/bigbluebutton-default/assets/apple-touch-icon-precomposed.png
+```
+
+nginx serves `/favicon.ico` from this folder for both Greenlight and the meeting page.
+
+## Deploy Greenlight
+
+```bash
+cd /root/greenlight && git pull
+docker build -t greenlight-custom:production .
+cd /root/greenlight-v3 && docker compose up -d
+docker logs --tail 20 greenlight-v3
+```
+
+`/root/greenlight-v3/docker-compose.yml` must use `image: greenlight-custom:production` (the official file is kept as `docker-compose.yml.official`). Google login keys go in `/root/greenlight-v3/.env` (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`).
+
+## After `apt upgrade`
+
+A `bbb-html5` or `bbb-config` package update overwrites the custom UI and favicon. After any upgrade:
+
+1. Check the version: `cat /etc/bigbluebutton/bigbluebutton-release`.
+2. If the BBB version changed (for example 3.0.41), move the T-Meet commits to the new tag first (next section).
+3. Run "Deploy the HTML5 client" and "Deploy the favicon" again.
+
+## Moving T-Meet to a new BBB version
+
+Run on a machine with push access, replacing `3.0.41` with the new version:
+
+```bash
+git fetch https://github.com/bigbluebutton/bigbluebutton.git tag v3.0.41 --no-tags
+git checkout -b production-3.0.41 v3.0.41
+git cherry-pick v3.0.40..production-3.0.40
+git push origin production-3.0.41
+```
+
+Then on the server: `git fetch origin && git checkout production-3.0.41` and deploy.
+
+## Backups on the server
+
+| What | Where |
+| --- | --- |
+| Official HTML5 client (3.0.40) | `/root/html5-client.official-3.0.40.bak` |
+| Official Greenlight compose file | `/root/greenlight-v3/docker-compose.yml.official` |
+| Original BBB favicon | `/var/www/bigbluebutton-default/assets/favicon.ico.bbb-original` |
+| Install log | `/root/bbb-install.log` |
+
+## API for other platforms
+
+External platforms integrate through the standard BigBlueButton API at `https://tmeet.tsaedu.com/bigbluebutton/api/`. Integration guide: https://claude.ai/artifact/BMRcJ5UkaShvk7g9FKYG7Y
+
+The shared secret is shown by `bbb-conf --secret` on the server. **Never commit it** and share it only through a private channel. Greenlight uses the same secret; if it is rotated (`bbb-conf --setsecret`), update `BIGBLUEBUTTON_SECRET` in `/root/greenlight-v3/.env` and run `docker compose up -d`.
