@@ -76,6 +76,34 @@ docker logs --tail 20 greenlight-v3
 
 `/root/greenlight-v3/docker-compose.yml` must use `image: greenlight-custom:production` (the official file is kept as `docker-compose.yml.official`). Google login keys go in `/root/greenlight-v3/.env` (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`).
 
+## Client settings override
+
+`/etc/bigbluebutton/bbb-html5.yml` holds server-specific client settings (survives upgrades). Current content:
+
+```yaml
+public:
+  app:
+    clientTitle: T-Meet
+  kurento:
+    wsUrl: wss://tmeet.tsaedu.com/bbb-webrtc-sfu
+    screenshare:
+      bitrate: 800          # default 1500; lowered so presenters' audio does not break during screen share
+      constraints:
+        video:
+          frameRate:
+            ideal: 5
+            max: 10
+          width:
+            max: 1920       # default 2560
+          height:
+            max: 1080       # default 1600
+        audio: true
+  pads:
+    url: https://tmeet.tsaedu.com/pad
+```
+
+After editing it, run `systemctl restart bbb-apps-akka bbb-web` (this ends running meetings, so check `getMeetings` first). The previous version is saved as `bbb-html5.yml.bak-2026-11-02`.
+
 ## After `apt upgrade`
 
 A `bbb-html5` or `bbb-config` package update overwrites the custom UI and favicon. After any upgrade:
