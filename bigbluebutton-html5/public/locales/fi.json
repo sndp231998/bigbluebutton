@@ -485,7 +485,7 @@
     "app.whiteboard.toolbar.multiUserOff": "Kytke usean käyttäjän tussitaulu pois käytöstä",
     "app.whiteboard.toolbar.fontSize": "Fonttikokolista",
     "app.feedback.title": "Olet kirjautunut ulos istunnosta",
-    "app.feedback.subtitle": "Me rakastaisimme kuulla mitä mieltä olet BigBlueButtonista (vapaaehtoinen)",
+    "app.feedback.subtitle": "Me rakastaisimme kuulla mitä mieltä olet T-Meetista (vapaaehtoinen)",
     "app.feedback.textarea": "Miten voimme tehdä BigBlueButonnista paremman?",
     "app.feedback.sendFeedback": "Lähetä palaute",
     "app.feedback.sendFeedbackDesc": "Lähetä palaute ja poistu tapaamisesta",

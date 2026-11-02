@@ -613,8 +613,8 @@
     "app.whiteboard.toolbar.multiUserOff": "Išjungti kelių naudotojų lentą",
     "app.whiteboard.toolbar.fontSize": "Šrifto dydžių sąrašas ",
     "app.feedback.title": "Jūs atsijungėte nuo konferencijos",
-    "app.feedback.subtitle": "Norėtume išgirsti apie jūsų patirtį naudojant „BigBlueButton“ (nebūtina)",
-    "app.feedback.textarea": "Kaip mes galime padaryti „BigBlueButton“ geresnį?",
+    "app.feedback.subtitle": "Norėtume išgirsti apie jūsų patirtį naudojant „T-Meet“ (nebūtina)",
+    "app.feedback.textarea": "Kaip mes galime padaryti „T-Meet“ geresnį?",
     "app.feedback.sendFeedback": "Siųsti atsiliepimą",
     "app.feedback.sendFeedbackDesc": "Išsiųsti atsiliepimą ir išeiti iš susitikimo",
     "app.videoDock.webcamFocusLabel": "Sufokusuoti",
@@ -659,6 +659,6 @@
     "app.legacy.unsupportedBrowser": "Panašu, kad naudojate nepalaikomą naršyklę. Norėdami gauti visišką palaikymą, naudokite {supportedBrowser1} arba {supportedBrowser2}.",
     "app.legacy.upgradeBrowser": "Panašu, kad naudojate senesnę palaikomos naršyklės versiją. Atnaujinkite savo naršyklę, kad gautumėte visą palaikymą.",
     "app.legacy.criosBrowser": "Jei naudojate „iOS“, naudokite „Safari“, kad gautumėte visą palaikymą.",
-    "mobileApp.portals.fields.name.placeholder": "BigBlueButton demo",
+    "mobileApp.portals.fields.name.placeholder": "T-Meet demo",
     "mobileApp.portals.fields.url.label": "Serverio URL"
 }

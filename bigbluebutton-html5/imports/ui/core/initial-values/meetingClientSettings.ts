@@ -16,7 +16,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       clientTitle: 'T-Meet',
       bbbServerVersion: 'HTML5_FULL_BBB_VERSION',
       displayBbbServerVersion: true,
-      copyright: '©2023 BigBlueButton Inc.',
+      copyright: '©2026 T-Meet',
       html5ClientBuild: 'HTML5_CLIENT_VERSION',
       helpLink: 'https://bigbluebutton.org/html5/',
       delayForUnmountOfSharedNote: 120000,

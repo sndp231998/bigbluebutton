@@ -620,7 +620,7 @@
     "app.learningDashboard.pollsTable.noPollsCreatedHeading": "Nije stvorena nijedna anketa",
     "mobileApp.portals.list.add.button.label": "Dodaj portal",
     "mobileApp.portals.fields.name.label": "Naziv portala",
-    "mobileApp.portals.fields.name.placeholder": "BigBlueButton demo",
+    "mobileApp.portals.fields.name.placeholder": "T-Meet demo",
     "mobileApp.portals.fields.url.label": "URL poslužitelja",
     "mobileApp.portals.addPortalPopup.confirm.button.label": "Pohrani",
     "mobileApp.portals.drawerNavigation.button.label": "Portali",

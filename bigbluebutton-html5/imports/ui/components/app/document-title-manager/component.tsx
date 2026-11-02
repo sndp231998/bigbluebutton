@@ -76,7 +76,7 @@ const intlMessages = defineMessages({
 
 const getClientTitle = () => {
   const publicConfig = window.meetingClientSettings?.public;
-  return getFromUserSettings('bbb_client_title', publicConfig?.app?.clientTitle || 'BigBlueButton');
+  return getFromUserSettings('bbb_client_title', publicConfig?.app?.clientTitle || 'T-Meet');
 };
 
 const getChatTitle = (

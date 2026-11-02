@@ -28,13 +28,13 @@ public:
     skipEchoTestIfPreviousDevice: false
     clientTitle: T-Meet
     bbbServerVersion: HTML5_FULL_BBB_VERSION
-    displayBbbServerVersion: true
-    copyright: '©2026 BigBlueButton Inc.'
+    displayBbbServerVersion: false
+    copyright: '©2026 T-Meet'
     html5ClientBuild: HTML5_CLIENT_VERSION
-    helpLink: https://bigbluebutton.org/html5/
+    helpLink: https://tmeet.tsaedu.com/
     delayForUnmountOfSharedNote: 120000
     bbbTabletApp:
-      enabled: true
+      enabled: false
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
       iosAppUrlScheme: 'bigbluebutton-tablet'
     cdn: ''
