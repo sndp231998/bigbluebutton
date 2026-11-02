@@ -4,6 +4,19 @@ How the T-Meet server (`https://tmeet.tsaedu.com`) is built, and how to update o
 
 Last setup: 2 November 2026.
 
+## Quick deploy: `/root/run.sh`
+
+After pushing changes to GitHub, run on the server:
+
+| Command | What it does |
+| --- | --- |
+| `/root/run.sh` | Pull both repos, rebuild Greenlight image and replace the container, rebuild the HTML5 client only if `bigbluebutton-html5/` changed, copy favicon and default slide, health check |
+| `/root/run.sh greenlight` | Only Greenlight (pull, build, replace) |
+| `/root/run.sh bbb` | Only HTML5 client (forced rebuild) and assets |
+| `/root/run.sh rollback` | Put the previous Greenlight image back |
+
+`/root/run.sh` is a symlink to `tmeet-run.sh` in this repo, so it updates itself on pull. Setup on a new server: `ln -sfn /root/bigbluebutton/tmeet-run.sh /root/run.sh`.
+
 ## What runs where
 
 | Part | Source | Location on server |
@@ -84,6 +97,11 @@ docker logs --tail 20 greenlight-v3
 public:
   app:
     clientTitle: T-Meet
+    copyright: ©2026 T-Meet
+    helpLink: https://tmeet.tsaedu.com/
+    displayBbbServerVersion: false
+    bbbTabletApp:
+      enabled: false
   kurento:
     wsUrl: wss://tmeet.tsaedu.com/bbb-webrtc-sfu
     screenshare:
@@ -102,7 +120,9 @@ public:
     url: https://tmeet.tsaedu.com/pad
 ```
 
-After editing it, run `systemctl restart bbb-apps-akka bbb-web` (this ends running meetings, so check `getMeetings` first). The previous version is saved as `bbb-html5.yml.bak-2026-11-02`.
+The meeting welcome message is set in `/etc/bigbluebutton/bbb-web.properties` (`defaultWelcomeMessage`, `defaultWelcomeMessageFooter`, no BigBlueButton links). The default slide is `bigbluebutton-config/assets/default.pdf` (T-Meet welcome slide), copied by `run.sh` to `/var/www/bigbluebutton-default/assets/default.pdf`.
+
+After editing either file, run `systemctl restart bbb-apps-akka bbb-web` (this ends running meetings, so check `getMeetings` first). The previous version is saved as `bbb-html5.yml.bak-2026-11-02`.
 
 ## After `apt upgrade`
 
