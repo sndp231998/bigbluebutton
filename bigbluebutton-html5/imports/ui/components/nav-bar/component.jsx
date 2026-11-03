@@ -16,6 +16,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
 import LeaveMeetingButtonContainer from './leave-meeting-button/container';
+import NavBarInviteButton from './invite-button/component';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
@@ -424,6 +425,7 @@ class NavBar extends Component {
             <Styled.Right>
               <h2 className="sr-only">{intl.formatMessage(intlMessages.sessionControlLabel)}</h2>
               {renderPluginItems(rightPluginItems)}
+              <NavBarInviteButton />
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
               {isDirectLeaveButtonEnabled && isConnected

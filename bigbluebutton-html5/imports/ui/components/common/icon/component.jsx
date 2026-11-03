@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { omit } from 'radash';
 import Styled from './styles';
+import getTMeetIcon from './tmeet-icons';
 
 const propTypes = {
   iconName: PropTypes.string,
@@ -19,16 +20,26 @@ const Icon = ({
   rotate = false,
   color = undefined,
   ...props
-}) => (
-  <Styled.Icon
-    aria-hidden="true"
-    color={color}
-    className={cx(className, iconName ? [prependIconName, iconName].join('') : '')}
-    // ToastContainer from react-toastify passes a useless closeToast prop here
-    {...omit(props, ['closeToast', 'animations', 'loading'])}
-    $rotate={rotate}
-  />
-);
+}) => {
+  const TMeetIcon = prependIconName === 'icon-bbb-' ? getTMeetIcon(iconName) : undefined;
+
+  return (
+    <Styled.Icon
+      aria-hidden="true"
+      color={color}
+      className={cx(
+        className,
+        iconName ? [prependIconName, iconName].join('') : '',
+        { 'tmeet-icon': TMeetIcon },
+      )}
+      // ToastContainer from react-toastify passes a useless closeToast prop here
+      {...omit(props, ['closeToast', 'animations', 'loading'])}
+      $rotate={rotate}
+    >
+      {TMeetIcon && <TMeetIcon />}
+    </Styled.Icon>
+  );
+};
 
 export default memo(Icon);
 

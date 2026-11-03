@@ -44,6 +44,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       background: #4169e1 linear-gradient(135deg, #16b9d4, #4169e1 55%, #6f2cff);
     }
 
+    /* T-Meet theme: the palette reads these variables (see palette.js) */
+    :root {
+      --color-primary: #4169e1;
+      --color-link: #4169e1;
+      --item-focus-border: #4169e1;
+      --btn-primary-bg: #4169e1;
+      --btn-primary-border: rgba(65, 105, 225, 0.5);
+      --btn-primary-hover-bg: #3457c8;
+      --btn-primary-active-bg: #2b48a8;
+      --color-gray-dark: #0f1a33;
+      --color-overlay: rgba(15, 26, 51, 0.75);
+      --color-user-moderator: #6f2cff;
+    }
+
+    /* T-Meet: modern SVG icons replace the bbb-icons font glyph */
+    .tmeet-icon::before {
+      content: none !important;
+    }
+    .tmeet-icon > svg {
+      display: block;
+      width: 1em;
+      height: 1em;
+    }
+
     /* language-specific font  ok */
     body.lang-fa {
       font-family: Tahoma, 'Source Sans Pro', Arial, sans-serif;
