@@ -10,7 +10,7 @@ import {
   LuUpload, LuTrash2, LuRefreshCw, LuPin, LuExternalLink, LuLayoutDashboard, LuClock,
   LuVolume2, LuVolumeX, LuVolume1, LuWifi, LuChevronLeft, LuChevronRight, LuChevronUp,
   LuMinus, LuThumbsUp, LuThumbsDown, LuStar, LuKeyboard, LuCaptions, LuCaptionsOff,
-  LuMonitor, LuEarOff,
+  LuMonitor,
 } from 'react-icons/lu';
 
 const TMEET_ICONS: Record<string, IconType> = {
@@ -22,7 +22,7 @@ const TMEET_ICONS: Record<string, IconType> = {
   listen: LuHeadphones,
   listen_filled: LuHeadphones,
   audio_off: LuHeadphoneOff,
-  no_audio: LuEarOff,
+  no_audio: LuHeadphoneOff,
   video: LuVideo,
   video_off: LuVideoOff,
   desktop: LuMonitorUp,

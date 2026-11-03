@@ -58,6 +58,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       --color-user-moderator: #6f2cff;
     }
 
+    /* T-Meet: the brand gradient is only for loading; inside the meeting the gaps
+       between panels must match the dark frame */
+    body:has(#layout) {
+      background: var(--color-gray-dark) !important;
+    }
+
     /* T-Meet: modern SVG icons replace the bbb-icons font glyph */
     .tmeet-icon::before {
       content: none !important;
