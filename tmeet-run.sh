@@ -4,6 +4,7 @@
 #   /root/run.sh               # everything: greenlight + bbb (html5 only if it changed) + assets
 #   /root/run.sh greenlight    # only Greenlight image + container
 #   /root/run.sh bbb           # only HTML5 client (forced rebuild) + assets
+#   /root/run.sh translate     # caption translator container (tmeet-translate)
 #   /root/run.sh rollback      # put the previous Greenlight image back
 #
 # /root/run.sh is a symlink to /root/bigbluebutton/tmeet-run.sh, so the script
@@ -20,6 +21,9 @@ main() {
   local IMAGE=greenlight-custom:production
   local PREVIOUS=greenlight-custom:previous
   local HTML5_STAMP=/root/.tmeet-html5-deployed
+  local TRANSLATE_STAMP=/root/.tmeet-translate-deployed
+  local TRANSLATE_IMAGE=tmeet-translate:latest
+  local HF_TOKEN_FILE=/root/.hf-token
   local SITE=https://tmeet.tsaedu.com
 
   log() { echo -e "\n\033[1;34m==> $*\033[0m"; }
@@ -81,6 +85,36 @@ main() {
     echo "$head" > "$HTML5_STAMP"
   }
 
+  deploy_translate() {
+    local force="${1:-}"
+    local head
+    head=$(git -C "$BBB_REPO" rev-parse HEAD)
+    if [ -z "$force" ] && [ -f "$TRANSLATE_STAMP" ]       && git -C "$BBB_REPO" diff --quiet "$(cat "$TRANSLATE_STAMP")" "$head" -- tmeet-translate; then
+      ok "tmeet-translate unchanged since last deploy, skipping build"
+      return 0
+    fi
+    [ -f "$HF_TOKEN_FILE" ] || { warn "no $HF_TOKEN_FILE (Hugging Face read token); skipping tmeet-translate"; return 0; }
+    log "Building $TRANSLATE_IMAGE"
+    docker build -q -t "$TRANSLATE_IMAGE" "$BBB_REPO/tmeet-translate"
+    log "Replacing tmeet-translate container (models load in about a minute)"
+    docker rm -f tmeet-translate >/dev/null 2>&1 || true
+    docker run -d --name tmeet-translate --restart unless-stopped       -p 127.0.0.1:8095:8095 --memory 3g       -v /root/tmeet-translate-models:/models       -v "$HF_TOKEN_FILE":/run/secrets/hf_token:ro -e HF_TOKEN_PATH=/run/secrets/hf_token       -e PRELOAD=en-indic,indic-en,indic-indic       "$TRANSLATE_IMAGE" >/dev/null
+    docker image prune -f >/dev/null
+    echo "$head" > "$TRANSLATE_STAMP"
+    ok "tmeet-translate started (logs: docker logs -f tmeet-translate)"
+  }
+
+  deploy_nginx() {
+    local src="$BBB_REPO/bigbluebutton-config/tmeet/tmeet-translate.nginx"
+    local dst=/etc/bigbluebutton/nginx/tmeet-translate.nginx
+    if ! cmp -s "$src" "$dst"; then
+      log "Installing nginx config for tmeet-translate"
+      cp "$src" "$dst"
+      nginx -t && systemctl reload nginx
+      ok "nginx reloaded"
+    fi
+  }
+
   deploy_assets() {
     log "Copying favicon, touch icons and default slide"
     cp "$BBB_REPO/bigbluebutton-config/assets/favicon.ico" "$ASSETS/favicon.ico"
@@ -97,6 +131,9 @@ main() {
     ok "$(grep -c "✔" <<< "$status" || true) BBB services active"
     grep "✘" <<< "$status" || true
     curl -s "$SITE/bigbluebutton/api" | grep -q SUCCESS && ok "BBB API answers" || warn "BBB API did not answer"
+    if docker ps --format '{{.Names}}' | grep -qx tmeet-translate; then
+      curl -s http://127.0.0.1:8095/health | grep -q ok && ok "tmeet-translate answers" || warn "tmeet-translate not ready yet"
+    fi
   }
 
   case "${1:-all}" in
@@ -104,6 +141,8 @@ main() {
       deploy_greenlight
       pull "$BBB_REPO"
       deploy_html5
+      deploy_translate
+      deploy_nginx
       deploy_assets
       health
       ;;
@@ -114,8 +153,13 @@ main() {
       deploy_assets
       health
       ;;
+    translate)
+      pull "$BBB_REPO"
+      deploy_translate force
+      deploy_nginx
+      ;;
     rollback) rollback_greenlight ;;
-    *) sed -n '2,8p' "$0"; exit 2 ;;
+    *) sed -n '2,9p' "$0"; exit 2 ;;
   esac
 
   log "Done"

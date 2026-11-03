@@ -70,13 +70,9 @@ export const getSpeechVoices = () => {
   if (!isWebSpeechApi()) return LANGUAGES;
   if (!hasSpeechRecognitionSupport()) return null;
 
-  return unique(
-    window
-      .speechSynthesis
-      .getVoices()
-      .map((v) => v.lang)
-      .filter((v) => LANGUAGES.includes(v)),
-  );
+  // T-Meet: speech recognition supports languages that have no synthesis voice
+  // (Chrome has no Nepali voice but recognizes ne-NP), so offer every configured one.
+  return unique(LANGUAGES as string[]);
 };
 
 export const setAudioCaptions = (value: boolean) => {

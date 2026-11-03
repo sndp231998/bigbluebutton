@@ -7,6 +7,7 @@ export interface Caption {
   captionId: string;
   captionType: string;
   createdAt: string;
+  locale?: string;
 }
 
 export interface getCaptions {
@@ -39,6 +40,25 @@ export const GET_CAPTIONS = gql`
       captionId
       captionType
       createdAt
+    }
+  }
+`;
+
+// T-Meet: captions spoken in any of the given languages, translated on the client.
+export const GET_CAPTIONS_ANY_LOCALE = gql`
+  subscription getCaptionsAnyLocale($locales: [String!]!) {
+    caption(where: {locale: {_in: $locales}}) {
+      user {
+        avatar
+        color
+        isModerator
+        name
+      }
+      captionText
+      captionId
+      captionType
+      createdAt
+      locale
     }
   }
 `;

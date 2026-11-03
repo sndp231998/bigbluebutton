@@ -302,7 +302,13 @@ const AudioCaptionsButtonContainer: React.FC = () => {
   if (!currentMeetingData) return null;
   if (!activeCaptionsData) return null;
 
-  const availableVoices = activeCaptionsData.caption_activeLocales.map((caption) => caption.locale);
+  // T-Meet: captions are translated, so viewers can pick any configured language,
+  // not only the ones somebody is currently speaking.
+  const TRANSLATION_LANGUAGES: string[] = window.meetingClientSettings.public.app.audioCaptions.language.available;
+  const availableVoices = [...new Set([
+    ...TRANSLATION_LANGUAGES,
+    ...activeCaptionsData.caption_activeLocales.map((caption) => caption.locale),
+  ])];
   const currentCaptionLocale = currentUser.captionLocale || '';
   const isSupported = availableVoices.length > 0;
 

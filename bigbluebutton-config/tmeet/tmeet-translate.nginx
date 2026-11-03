@@ -1,0 +1,17 @@
+# T-Meet caption translation (tmeet-translate container).
+# Installed by tmeet-run.sh into /etc/bigbluebutton/nginx/. Only users with a
+# valid meeting session (x-session-token header) may call it.
+location /tmeet-translate/ {
+    auth_request /bigbluebutton/connection/checkGraphqlAuthorization;
+
+    limit_except POST {
+        deny all;
+    }
+    client_max_body_size 4k;
+
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_connect_timeout 3s;
+    proxy_read_timeout 30s;
+    proxy_pass http://127.0.0.1:8095/;
+}

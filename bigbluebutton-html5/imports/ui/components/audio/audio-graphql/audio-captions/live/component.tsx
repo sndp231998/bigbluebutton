@@ -1,5 +1,5 @@
 import React from 'react';
-import { Caption, GET_CAPTIONS, getCaptions } from './queries';
+import { Caption, GET_CAPTIONS_ANY_LOCALE, getCaptions } from './queries';
 import logger from '/imports/startup/client/logger';
 
 import Styled from './styles';
@@ -8,6 +8,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { splitTranscript, captionLimit } from '../service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import { useCaptionTranslations } from '../translate';
 
 interface AudioCaptionsLiveProps {
   captions: Caption[];
@@ -66,14 +67,21 @@ const AudioCaptionsLiveContainer: React.FC = () => {
   }));
   const [audioCaptionsEnable] = useAudioCaptionEnable();
 
+  const targetLocale = currentUser?.captionLocale ?? 'en-US';
+  // T-Meet: listen to captions spoken in every configured language and translate
+  // them into the viewer's chosen caption language.
+  const SPOKEN_LANGUAGES: string[] = window.meetingClientSettings.public.app.audioCaptions.language.available;
   const {
     data: AudioCaptionsLiveData,
     loading: AudioCaptionsLiveLoading,
     error: AudioCaptionsLiveError,
-  } = useDeduplicatedSubscription<getCaptions>(GET_CAPTIONS, {
-    variables: { locale: currentUser?.captionLocale ?? 'en-US' },
+  } = useDeduplicatedSubscription<getCaptions>(GET_CAPTIONS_ANY_LOCALE, {
+    variables: { locales: [...new Set([...SPOKEN_LANGUAGES, targetLocale])] },
     skip: !audioCaptionsEnable || !currentUser?.captionLocale,
   });
+
+  const latestCaptions = AudioCaptionsLiveData?.caption?.slice(-captionLimit()) ?? [];
+  const translations = useCaptionTranslations(latestCaptions, targetLocale);
 
   if (AudioCaptionsLiveLoading) return null;
 
@@ -99,8 +107,11 @@ const AudioCaptionsLiveContainer: React.FC = () => {
 
   return (
     <AudioCaptionsLive
-      captions={AudioCaptionsLiveData.caption.map((c) => {
-        const splits = splitTranscript(c);
+      captions={latestCaptions.map((c) => {
+        const splits = splitTranscript({
+          ...c,
+          captionText: translations[c.captionId] ?? c.captionText,
+        });
         return splits;
       }).flat().filter((c) => c.captionText).slice(-captionLimit())}
     />
