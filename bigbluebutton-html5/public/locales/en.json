@@ -260,6 +260,7 @@
     "app.screenshare.screenshareUnsupportedEnv": "Code {errorCode}. Browser is not supported. Try again using a different browser or device.",
     "app.screenshare.screensharePermissionError": "Code {errorCode}. Permission to capture the screen needs to be granted.",
     "app.screenshare.screenshareToastHelpLabel": "Learn more", 
+    "app.screenshare.cameraStoppedForScreenshare": "Your camera was turned off while you share your screen, so your audio stays clear.",
     "app.cameraAsContent.presenterLoadingLabel": "Your camera is loading",
     "app.cameraAsContent.viewerLoadingLabel": "The presenter's camera is loading",
     "app.cameraAsContent.presenterSharingLabel": "You are now presenting your camera",

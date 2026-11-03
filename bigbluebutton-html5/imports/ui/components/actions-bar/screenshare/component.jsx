@@ -18,6 +18,8 @@ import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/err
 import Button from '/imports/ui/components/common/button/component';
 import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+import { useExitVideo } from '/imports/ui/components/video-provider/hooks';
+import { getVideoState } from '/imports/ui/components/video-provider/state';
 
 const { isMobile } = deviceInfo;
 const { isSafari, isTabletApp } = browserInfo;
@@ -95,7 +97,12 @@ const intlMessages = defineMessages({
   toastHelpLabel: {
     id: 'app.screenshare.screenshareToastHelpLabel',
     description: 'Label of the help button in toast notifications that opens external link',
-  }
+  },
+  cameraStoppedForScreenshare: {
+    id: 'app.screenshare.cameraStoppedForScreenshare',
+    description: 'Toast shown when the webcam is turned off because screen sharing started',
+    defaultMessage: 'Your camera was turned off while you share your screen, so your audio stays clear.',
+  },
 });
 
 const getErrorLocale = (errorCode) => {
@@ -151,7 +158,18 @@ const ScreenshareButton = ({
 }) => {
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const exitVideo = useExitVideo();
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
+
+  // T-Meet: the webcam competes with screen share and audio for the presenter's upload,
+  // so turn it off once sharing has started.
+  const onScreenshareStarted = () => {
+    stopExternalVideoShare();
+    if (getVideoState().isConnected) {
+      exitVideo();
+      notify(intl.formatMessage(intlMessages.cameraStoppedForScreenshare), 'info', 'video');
+    }
+  };
 
   const {
     isOpen: isScreenshareUnavailableModalOpen,
@@ -253,7 +271,7 @@ const ScreenshareButton = ({
                       openScreenshareUnavailableModal();
                     } else {
                       // eslint-disable-next-line max-len
-                      shareScreen(isCameraAsContentBroadcasting, stopExternalVideoShare, amIPresenter, handleFailure);
+                      shareScreen(isCameraAsContentBroadcasting, onScreenshareStarted, amIPresenter, handleFailure);
                     }
                   }}
                 id={amIBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
