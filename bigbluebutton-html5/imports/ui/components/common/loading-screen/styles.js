@@ -10,6 +10,8 @@ const Background = styled.div`
   width: 100%;
   height: 100%;
   background-color: ${loaderBg};
+  /* T-Meet brand gradient, same as the Greenlight landing page */
+  background-image: linear-gradient(135deg, #16b9d4, #4169e1 55%, #6f2cff);
   z-index: 4;
 `;
 
