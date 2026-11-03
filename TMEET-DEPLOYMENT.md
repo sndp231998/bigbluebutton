@@ -13,6 +13,7 @@ After pushing changes to GitHub, run on the server:
 | `/root/run.sh` | Pull both repos, rebuild Greenlight image and replace the container, rebuild the HTML5 client only if `bigbluebutton-html5/` changed, copy favicon and default slide, health check |
 | `/root/run.sh greenlight` | Only Greenlight (pull, build, replace) |
 | `/root/run.sh bbb` | Only HTML5 client (forced rebuild) and assets |
+| `/root/run.sh translate` | Rebuild and restart the caption translator (`tmeet-translate`) and its nginx config |
 | `/root/run.sh rollback` | Put the previous Greenlight image back |
 
 `/root/run.sh` is a symlink to `tmeet-run.sh` in this repo, so it updates itself on pull. Setup on a new server: `ln -sfn /root/bigbluebutton/tmeet-run.sh /root/run.sh`.
@@ -102,6 +103,14 @@ public:
     displayBbbServerVersion: false
     bbbTabletApp:
       enabled: false
+    audioCaptions:          # translated live captions, see below
+      enabled: true
+      provider: webspeech
+      language:
+        available:
+          - ne-NP
+          - hi-IN
+          - en-US
   kurento:
     wsUrl: wss://tmeet.tsaedu.com/bbb-webrtc-sfu
     screenshare:
@@ -123,6 +132,30 @@ public:
 The meeting welcome message is set in `/etc/bigbluebutton/bbb-web.properties` (`defaultWelcomeMessage`, `defaultWelcomeMessageFooter`, no BigBlueButton links). The default slide is `bigbluebutton-config/assets/default.pdf` (T-Meet welcome slide), copied by `run.sh` to `/var/www/bigbluebutton-default/assets/default.pdf`.
 
 After editing either file, run `systemctl restart bbb-apps-akka bbb-web` (this ends running meetings, so check `getMeetings` first). The previous version is saved as `bbb-html5.yml.bak-2026-11-02`.
+
+## Translated live captions (English, Hindi, Nepali)
+
+Free and self-hosted, no paid API:
+
+- **Speech to text:** the speaker's own browser (Web Speech API, works best in Chrome). Enabled in `/etc/bigbluebutton/bbb-html5.yml` under `public.app.audioCaptions` with languages `ne-NP`, `hi-IN`, `en-US`.
+- **Translation:** the `tmeet-translate` container (folder `tmeet-translate/` in this repo) runs the IndicTrans2 distilled models from AI4Bharat (MIT license) on CPU with int8 weights. It listens on `127.0.0.1:8095`. nginx exposes it as `/tmeet-translate/` only to users with a valid meeting session (`bigbluebutton-config/tmeet/tmeet-translate.nginx`, installed into `/etc/bigbluebutton/nginx/`).
+- **Client:** the speaker picks the language they speak in the audio modal. Each viewer picks the caption language in the CC button menu. Captions in other languages are translated on the fly (debounced while the sentence grows, cached).
+
+Measured on this server: about 0.6 to 1 second per sentence once warm. The container uses about 1.5 GB RAM and 1.9 GB of model files in `/root/tmeet-translate-models`.
+
+The models are gated on Hugging Face (free). A read token from account `Sandip8085` is stored in `/root/.hf-token` (mode 600, never commit it). On a new server:
+
+```bash
+read -s -p "HF token: " T && echo "$T" > /root/.hf-token && chmod 600 /root/.hf-token && unset T
+/root/run.sh translate
+docker logs -f tmeet-translate   # wait for "loaded ... indic-indic"
+```
+
+The account must have accepted the terms of `ai4bharat/indictrans2-en-indic-dist-200M`, `indictrans2-indic-en-dist-200M` and `indictrans2-indic-indic-dist-320M`.
+
+## Swap
+
+A 12 GB swap file (`/swapfile`, in `/etc/fstab`) with `vm.swappiness=10` (`/etc/sysctl.d/99-tmeet-swap.conf`) covers the 4 GB webpack build of the HTML5 client while BBB and the translator are running.
 
 ## After `apt upgrade`
 
