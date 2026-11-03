@@ -111,6 +111,8 @@ public:
           - ne-NP
           - hi-IN
           - en-US
+        defaultSelectLocale: true
+        locale: ne-NP     # speakers transcribe in Nepali unless they pick another language
   kurento:
     wsUrl: wss://tmeet.tsaedu.com/bbb-webrtc-sfu
     screenshare:
