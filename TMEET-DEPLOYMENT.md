@@ -159,6 +159,13 @@ The account must have accepted the terms of `ai4bharat/indictrans2-en-indic-dist
 
 A 12 GB swap file (`/swapfile`, in `/etc/fstab`) with `vm.swappiness=10` (`/etc/sysctl.d/99-tmeet-swap.conf`) covers the 4 GB webpack build of the HTML5 client while BBB and the translator are running.
 
+## Network tuning (fast meeting start)
+
+Added 8 November 2026. Without these, "Start" took 10+ seconds and the blue loading screen 2 to 4 minutes for users in Nepal.
+
+- **BBR TCP congestion control.** The route from Nepal has about 160 ms latency and some packet loss, and the default `cubic` slowed the 2.1 MB client bundle to about 10 KB/s. BBR made it 10 to 20 times faster. Files: `/etc/sysctl.d/98-tmeet-bbr.conf` (`default_qdisc=fq`, `tcp_congestion_control=bbr`, `tcp_slow_start_after_idle=0`) and `/etc/modules-load.d/tmeet-bbr.conf`. Revert: delete both files and run `sysctl -w net.ipv4.tcp_congestion_control=cubic`.
+- **Own domain pinned, no DNS lookup.** The Contabo DNS servers sometimes drop queries, and Greenlight calls the BBB API through `https://tmeet.tsaedu.com`, so a dropped lookup added about 10 s to "Start". `207.180.223.240 tmeet.tsaedu.com` is in `/etc/hosts` and `/etc/cloud/templates/hosts.debian.tmpl` (cloud-init rewrites `/etc/hosts`), and `/root/greenlight-v3/docker-compose.yml` has `extra_hosts: ["tmeet.tsaedu.com:207.180.223.240"]` under `greenlight-v3`. Change these if the server IP changes.
+
 ## After `apt upgrade`
 
 A `bbb-html5` or `bbb-config` package update overwrites the custom UI and favicon. After any upgrade:
