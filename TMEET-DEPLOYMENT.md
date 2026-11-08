@@ -131,7 +131,7 @@ public:
     url: https://tmeet.tsaedu.com/pad
 ```
 
-The meeting welcome message is set in `/etc/bigbluebutton/bbb-web.properties` (`defaultWelcomeMessage`, `defaultWelcomeMessageFooter`, no BigBlueButton links). The default slide is `bigbluebutton-config/assets/default.pdf` (T-Meet welcome slide), copied by `run.sh` to `/var/www/bigbluebutton-default/assets/default.pdf`.
+The meeting welcome message is set in `/etc/bigbluebutton/bbb-web.properties` (`defaultWelcomeMessage`, `defaultWelcomeMessageFooter`, no BigBlueButton links). The default slide is `bigbluebutton-config/assets/default.pdf` (page 1: T-Meet welcome slide, pages 2 to 4: blank white pages for the whiteboard, 960x540), copied by `run.sh` to `/var/www/bigbluebutton-default/assets/default.pdf`.
 
 After editing either file, run `systemctl restart bbb-apps-akka bbb-web` (this ends running meetings, so check `getMeetings` first). The previous version is saved as `bbb-html5.yml.bak-2026-11-02`.
 
