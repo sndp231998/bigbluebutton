@@ -129,6 +129,15 @@ public:
         audio: true
   pads:
     url: https://tmeet.tsaedu.com/pad
+  stats:                    # connection warning tuned for Nepal -> EU route (~160 ms, some packet loss)
+    rtt:
+      warning: 1000         # default 500
+      danger: 2500          # default 1000
+      critical: 5000        # default 2000; one slow TCP retransmit (2-3 s) no longer shows "A loss in your connection"
+    loss:
+      warning: 0.1          # default 0.05
+      danger: 0.2           # default 0.1
+      critical: 0.3         # default 0.2
 ```
 
 The meeting welcome message is set in `/etc/bigbluebutton/bbb-web.properties` (`defaultWelcomeMessage`, `defaultWelcomeMessageFooter`, no BigBlueButton links). The default slide is `bigbluebutton-config/assets/default.pdf` (page 1: T-Meet welcome slide, pages 2 to 4: blank white pages for the whiteboard, 960x540), copied by `run.sh` to `/var/www/bigbluebutton-default/assets/default.pdf`.
